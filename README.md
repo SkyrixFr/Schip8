@@ -1,4 +1,4 @@
-# Schip8
+# Schip8 (not the super chip)
 
 A emulator and disassembler for the famous chip8 (the disassembler is completely garbage).
 
