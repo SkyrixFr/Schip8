@@ -1,4 +1,5 @@
 #include "chip8.h"
+#include <stdio.h>
 
 void chip8_init(void){
 	uint8_t fontset[80] = {
@@ -45,4 +46,10 @@ void chip8_init(void){
 
     // Init the keyboard but i wont emplement it yet...
     uint16_t keyboard[16] = {0};
+
+
+    for(int i=0; i<=80;++i){
+        memory[i] = fontset[i];
+        printf("%x\n", memory[i]);
+    }
 }

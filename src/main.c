@@ -13,6 +13,8 @@ int main(int argc, char* argv[])
 
     init_display();
 
+    chip8_init();
+
     stop_display();
     return 0;
 }
