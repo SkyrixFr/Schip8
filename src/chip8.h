@@ -16,6 +16,7 @@ extern uint16_t opcode;
 extern uint16_t keyboard[16];
 
 void chip8_init();
+int load_rom();
 
 
 #endif

@@ -7,7 +7,7 @@ LIB_LOCALISATION = lib
 
 EXEC = Chip8-Emulator
 
-SRC = inout.c chip8.c main.c
+SRC = inout.c chip8.c fileSize.c main.c
 OBJ = $(SRC:.c=.o)
 
 all : program
