@@ -58,24 +58,38 @@ void chip8_init(void){
 
 // Wrong need to fix
 int load_rom(char *filename){
-    long int romsize = 0;
+    int32_t romsize = 0;
 
-    FILE* fp = fopen(filename, "rb");
-    if(fp == NULL){
+    printf("%s\n",filename);
+
+    FILE* file = fopen(filename, "rb");
+    if(file == NULL){
         fprintf(stderr, "Error opening the file");
         return -1;
     }
 
     //find size
-    fseek(fp, 0L, SEEK_END);
-    romsize = ftell(fp);
+    fseek(file, 0L, SEEK_END);
+    romsize = ftell(file);
+    fseek(file, 0L, SEEK_SET);
 
-    rewind(fp);
+    int8_t *buffer=malloc(romsize+1);
+    fread(buffer, sizeof(char), romsize, file);
 
-    uint8_t *buffer=malloc(romsize+0x200);
-    fread(buffer+0x200, romsize, 1, fp);
+    fclose(file);
 
+    if(romsize>=3584){
+        fprintf(stderr, "Error, romsize too big!");
+        return -1;
+    }
 
-    fclose(fp);
+    for (int32_t i = 0; i < romsize; ++i) {
+        memory[0x200 + i] = buffer[i];
+    }
+
+    for(int32_t i = 0x200; i<0x1000; i+=2){
+        printf("0x%x %02x%02x\n",i,memory[i],memory[i+1]);
+    }
+
     return 0;
 }

@@ -15,7 +15,8 @@ int main(int argc, char* argv[])
     init_display();
 
     chip8_init();
-    load_rom(argv[1]);
+    char* filename = argv[1];
+    load_rom(filename);
 
     stop_display();
     return 0;
