@@ -1,5 +1,6 @@
 #include "chip8.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 uint8_t fontset[80] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -56,6 +57,25 @@ void chip8_init(void){
 }
 
 // Wrong need to fix
-int load_rom(uint8_t *codebuffer, int16_t pc){
+int load_rom(char *filename){
+    long int romsize = 0;
 
+    FILE* fp = fopen(filename, "rb");
+    if(fp == NULL){
+        fprintf(stderr, "Error opening the file");
+        return -1;
+    }
+
+    //find size
+    fseek(fp, 0L, SEEK_END);
+    romsize = ftell(fp);
+
+    rewind(fp);
+
+    uint8_t *buffer=malloc(romsize+0x200);
+    fread(buffer+0x200, romsize, 1, fp);
+
+
+    fclose(fp);
+    return 0;
 }

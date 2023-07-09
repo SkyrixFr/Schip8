@@ -7,6 +7,7 @@ extern uint8_t memory[4096];
 extern uint8_t V[16];
 extern uint8_t delayTimer;
 extern uint8_t soundTimer;
+extern uint8_t drawflag;
 extern uint8_t screen[64 * 32];
 extern uint8_t sp;
 extern uint16_t pc;

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "chip8.h"
 #include "inout.h"
-#include "fileSize.h"
+//#include "fileSize.h"
 
 int main(int argc, char* argv[])
 {
@@ -12,17 +12,10 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    FILE *fp = fopen(argv[1], "rb");
-    long filesize = findFileSize(argv[1]);
-    printf("The file's size is: %ld\n", filesize);
-    uint8_t *buffer=malloc(filesize+0x200);
-    fread(buffer+0x200, filesize, 1, fp);
-    fclose(fp);
-
     init_display();
 
     chip8_init();
-    load_rom();
+    load_rom(argv[1]);
 
     stop_display();
     return 0;
