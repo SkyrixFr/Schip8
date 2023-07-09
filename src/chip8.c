@@ -74,7 +74,11 @@ int load_rom(char *filename){
     fseek(file, 0L, SEEK_SET);
 
     int8_t *buffer=malloc(romsize+1);
-    fread(buffer, sizeof(char), romsize, file);
+    int bufferSize = fread(buffer, sizeof(char), romsize, file);
+    if(bufferSize!=romsize){
+        fprintf(stderr, "Error of rom buffer\n");
+        return -1;
+    }
 
     fclose(file);
 
@@ -87,9 +91,39 @@ int load_rom(char *filename){
         memory[0x200 + i] = buffer[i];
     }
 
-    for(int32_t i = 0x200; i<0x1000; i+=2){
-        printf("0x%x %02x%02x\n",i,memory[i],memory[i+1]);
+    return 0;
+}
+
+void one_cycle(void){
+    opcode = memory[pc] << 8 | memory[pc+1];
+    //printf("pc %04x - %04x\n",pc-0x200,opcode);
+
+    // configurations : YxyZ, Ynnn, Yxnn, Yx
+    uint16_t x = (opcode & 0x0f00) >> 8;
+    uint16_t y = (opcode & 0x00f0) >> 4;
+
+    printf("%04X -> ",opcode);
+    //check first nib
+    switch (opcode & 0xF000){
+        case 0x0000:
+            switch(opcode & 0x00ff){
+                case 0x00E0:
+                    printf("%-10s %s\n", "CLS", "Clears screen");
+                    break;
+
+                case 0x00EE:
+                    printf("%-10s %s\n", "RET", "Return from a subroutine");
+                break;
+
+                default:
+                    printf("%-10s %s\n", "UNK", "Unknown opcode");
+
+            }
+        break;
+        default:
+            printf("%-10s %s\n", "UNK", "Unknown opcode");
+
     }
 
-    return 0;
+
 }

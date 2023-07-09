@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "chip8.h"
 #include "inout.h"
+
 //#include "fileSize.h"
 
 int main(int argc, char* argv[])
@@ -15,8 +17,13 @@ int main(int argc, char* argv[])
     init_display();
 
     chip8_init();
-    char* filename = argv[1];
+    uint8_t* filename = argv[1];
     load_rom(filename);
+
+    while(opcode!=0x0000)
+    for(pc;pc<0xfff;pc+=2){
+    one_cycle();
+    }
 
     stop_display();
     return 0;

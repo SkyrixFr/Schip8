@@ -1,5 +1,6 @@
 #include "inout.h"
 #include "SDL2/SDL.h"
+#include <stdint.h>
 
 #define SCREEN_WIDTH 512
 #define SCREEN_HEIGHT 256
@@ -15,6 +16,12 @@ void init_display(void){
 
 	renderer = SDL_CreateRenderer(screen, -1, SDL_RENDERER_ACCELERATED);
 }
+
+void draw(uint8_t* display){
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	//to be done
+}
+
 
 void stop_display(void) {
     SDL_DestroyWindow(screen);
