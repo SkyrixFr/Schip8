@@ -96,32 +96,164 @@ int load_rom(char *filename){
 
 void one_cycle(void){
     opcode = memory[pc] << 8 | memory[pc+1];
-    //printf("pc %04x - %04x\n",pc-0x200,opcode);
 
     // configurations : YxyZ, Ynnn, Yxnn, Yx
     uint16_t x = (opcode & 0x0f00) >> 8;
     uint16_t y = (opcode & 0x00f0) >> 4;
+    uint16_t nn = (opcode & 0x00ff);
+    uint16_t nnn = (opcode & 0x0fff);
 
-    printf("%04X -> ",opcode);
+    printf("pc 0x%03x -> %04X -> ",pc,opcode);
     //check first nib
     switch (opcode & 0xF000){
         case 0x0000:
-            switch(opcode & 0x00ff){
-                case 0x00E0:
-                    printf("%-10s %s\n", "CLS", "Clears screen");
+            switch(nn){
+                case 0xE0:
+                    fprintf(stderr,"%-10s %s\n", "CLS", "Clears screen");
+                    for(int i=0;i<64*32;++i){display[i]=0;}
+                    pc+=2;
                     break;
 
-                case 0x00EE:
-                    printf("%-10s %s\n", "RET", "Return from a subroutine");
-                break;
+                case 0xEE:
+                    fprintf(stderr,"%-10s %s\n", "RET", "Return from a subroutine");
+                    // don't know what it is need to do some research
+
+                    pc+=2;
+                    break;
 
                 default:
-                    printf("%-10s %s\n", "UNK", "Unknown opcode");
+                    fprintf(stderr,"%-10s %s\n", "UNK", "Unknown opcode");
+                    pc+=2;
+                    break;
 
+            }
+            break;
+        case 0x1000:
+            fprintf(stderr,"%-10s %s %x\n", "JMP", "Jump to:",nnn);
+            pc=nnn;
+            break;
+        case 0x2000:
+            fprintf(stderr, "%-10s %s\n", "NIY", "NOT IMPLEMENTED YET");
+            pc+=2;
+            break;
+        case 0x3000:
+            fprintf(stderr, "%-10s %s%x %s%x\n", "SKIE", "Skip next instruction if V",x,"== 0x",nn);
+            if(V[x]==nn){
+                pc+=2;
+            }
+            pc+=2;
+            break;
+        case 0x4000:
+            fprintf(stderr, "%-10s %s%x %s%x\n", "SKINE", "Skip next instruction if V",x,"!= 0x",nn);
+            if(V[x]!=nn){
+                pc+=2;
+            }
+            pc+=2;
+            break;
+        case 0x5000:
+            fprintf(stderr, "%-10s %s%x %s%x\n", "SKIVE", "Skip next instruction if V",x,"== V",y);
+            if(V[x]==V[y]){
+                pc+=2;
+            }
+            pc+=2;
+            break;
+        case 0x6000:
+            fprintf(stderr, "%-10s %s%x %s%x\n", "SET", "Set V",x,"to 0x",nn);
+
+            V[x]=nn;
+            pc+=2;
+            break;
+        case 0x7000:
+            fprintf(stderr, "%-10s %s%x %s%x\n", "ADDVNN", "Add 0x",nn,"to V",x);
+            V[x]+=nn;
+            pc+=2;
+            break;
+        case 0x8000:
+            switch(opcode & 0x000F){
+                case 0x0:
+                    fprintf(stderr, "%-10s %s%x %s%x\n", "SETXY", "Set V",x,"to V",y);
+                    V[x]=V[y];
+                    pc+=2;
+                    break;
+                case 0x1:
+                    //Vx = Vx or Vy
+                    fprintf(stderr, "%-10s %s%x %s%x %s%x\n", "ORXY", "Set V",x,"to V",x,"| V",y);
+                    V[x] = (V[x] | V[y]);
+                    pc+=2;
+                    break;
+                case 0x2:
+                    //Vx = Vx and Vy
+                    fprintf(stderr, "%-10s %s%x %s%x %s%x\n", "ANDXY", "Set V",x,"to V",x,"& V",y);
+                    V[x] = (V[x] & V[y]);
+                    pc+=2;
+                    break;
+                case 0x3:
+                    //Vx = Vx xor Vy
+                    fprintf(stderr, "%-10s %s%x %s%x %s%x\n", "XORXY", "Set V",x,"to V",x,"^ V",y);
+                    V[x] = (V[x] ^ V[y]);
+                    pc+=2;
+                    break;
+                case 0x4:
+                    fprintf(stderr, "%-10s %s%x %s%x %s\n", "ADDXY", "ADD V",y,"to V",x,"with carry in Vf (set to 1 or 0)");
+                    V[0xF] = (V[x] + V[y] > 0xFF) ? 1 : 0;
+                    V[x] += V[y];
+                    pc+=2;
+                    break;
+                case 0x5:
+                    fprintf(stderr, "%-10s %s%x %s%x %s\n", "SUBXY", "SUB V",y,"to V",x,"with borrow in Vf (set to 1 or 0)");
+                    V[0xF] = (V[x] > V[y]) ? 1 : 0;
+                    V[x] -= V[y];
+                    pc+=2;
+                    break;
+                case 0x6:
+                    fprintf(stderr, "%-10s %s%x %s\n", "SHR", "VF = least sig then V",x,"is shifted by 1 to the right");
+            }
+        break;
+        case 0x9000:
+            switch(opcode & 0x00ff){
+                case 0x0000:
+                    break;
+            }
+        break;
+        case 0xA000:
+            switch(opcode & 0x00ff){
+                case 0x0000:
+                    break;
+            }
+        break;
+        case 0xB000:
+            switch(opcode & 0x00ff){
+                case 0x0000:
+                    break;
+            }
+        break;
+        case 0xC000:
+            switch(opcode & 0x00ff){
+                case 0x0000:
+                    break;
+            }
+        break;
+        case 0xD000:
+            switch(opcode & 0x00ff){
+                case 0x0000:
+                    break;
+            }
+        break;
+        case 0xE000:
+            switch(opcode & 0x00ff){
+                case 0x0000:
+                    break;
+            }
+        break;
+        case 0xF000:
+            switch(opcode & 0x00ff){
+                case 0x0000:
+                    break;
             }
         break;
         default:
             printf("%-10s %s\n", "UNK", "Unknown opcode");
+            break;
 
     }
 

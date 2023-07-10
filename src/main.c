@@ -19,9 +19,8 @@ int main(int argc, char* argv[])
     chip8_init();
     uint8_t* filename = argv[1];
     load_rom(filename);
-
-    while(opcode!=0x0000)
-    for(pc;pc<0xfff;pc+=2){
+    
+    for(pc;pc<0xfff;pc+=0){
     one_cycle();
     }
 
