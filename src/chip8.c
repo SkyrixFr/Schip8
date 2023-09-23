@@ -207,14 +207,14 @@ void one_cycle(void){
                     break;
                 case 0x6:
                     fprintf(stderr, "%-10s %s%x %s\n", "SHR", "VF = least sig then V",x,"is shifted by 1 to the right");
-            }
-        break;
-        case 0x9000:
-            switch(opcode & 0x00ff){
-                case 0x0000:
+                    PC+=2;
                     break;
             }
         break;
+        case 0x9000:
+            fprintf(stderr, "%-10s %s%x %s\n", "CMP", "Skip next instruction code if Vx!=Vy");
+            
+            break;
         case 0xA000:
             switch(opcode & 0x00ff){
                 case 0x0000:
