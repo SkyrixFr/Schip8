@@ -54,6 +54,12 @@ void chip8_init(void){
         memory[i] = fontset[i];
     }
     puts("Done!");
+
+    puts("Init srand()");
+    srand((uint32_t)time(NULL));
+    puts("Done!");
+
+    puts("Finished Init");
 }
 
 // Wrong need to fix
@@ -207,38 +213,35 @@ void one_cycle(void){
                     break;
                 case 0x6:
                     fprintf(stderr, "%-10s %s%x %s\n", "SHR", "VF = least sig then V",x,"is shifted by 1 to the right");
-                    PC+=2;
+                    pc+=2;
                     break;
             }
         break;
         case 0x9000:
             fprintf(stderr, "%-10s %s%x %s\n", "CMP", "Skip next instruction code if Vx!=Vy");
-            
+            if(V[x]!=V[y]){
+                pc+=2;
+            }
+            pc+=2;
             break;
         case 0xA000:
-            switch(opcode & 0x00ff){
-                case 0x0000:
-                    break;
-            }
-        break;
+            fprintf(stderr, "%-10s %s%x %s\n", "SETI", "Set I to NNN");
+            I=nnn;
+            pc+=2;
+            break;
         case 0xB000:
-            switch(opcode & 0x00ff){
-                case 0x0000:
-                    break;
-            }
-        break;
+            fprintf(stderr, "%-10s %s%x %s\n", "JMP+V0", "Jump to address NNN + V0");
+            pc=V[0]+nnn;
+            break;
         case 0xC000:
-            switch(opcode & 0x00ff){
-                case 0x0000:
-                    break;
-            }
-        break;
+            fprintf(stderr, "%-10s %s%x %s\n", "VERAND", "Vx is equal to random number & nn");
+            V[x] = (rand() % 256) & nn;
+            pc+=2
+            break;
         case 0xD000:
-            switch(opcode & 0x00ff){
-                case 0x0000:
-                    break;
-            }
-        break;
+            // NOT DONE YET TO DO
+            fprintf(stderr, "%-10s %s%x %s\n", "DRW", "Draw to the screen at coordinates Vx and Vy");
+            break;
         case 0xE000:
             switch(opcode & 0x00ff){
                 case 0x0000:
