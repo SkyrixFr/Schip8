@@ -1,8 +1,10 @@
 #include "chip8.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
-uint8_t fontset[80] = {
+
+int8_t fontset[80] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
     0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -70,8 +72,9 @@ int load_rom(char *filename){
 
     FILE* file = fopen(filename, "rb");
     if(file == NULL){
-        fprintf(stderr, "Error opening the file");
-        return -1;
+        fprintf(stderr, "Error opening the file\n");
+        fclose(file);
+        return 1;
     }
 
     //find size
@@ -79,24 +82,27 @@ int load_rom(char *filename){
     romsize = ftell(file);
     fseek(file, 0L, SEEK_SET);
 
+    if(romsize>=3584){
+        fprintf(stderr, "Error, romsize too big!\n");
+        fclose(file);
+        return 1;
+    }
+
     int8_t *buffer=malloc(romsize+1);
     int bufferSize = fread(buffer, sizeof(char), romsize, file);
     if(bufferSize!=romsize){
         fprintf(stderr, "Error of rom buffer\n");
-        return -1;
+        fclose(file);
+        return 1;
     }
 
     fclose(file);
-
-    if(romsize>=3584){
-        fprintf(stderr, "Error, romsize too big!");
-        return -1;
-    }
 
     for (int32_t i = 0; i < romsize; ++i) {
         memory[0x200 + i] = buffer[i];
     }
 
+    free(buffer);
     return 0;
 }
 
@@ -109,7 +115,7 @@ void one_cycle(void){
     uint16_t nn = (opcode & 0x00ff);
     uint16_t nnn = (opcode & 0x0fff);
 
-    printf("pc 0x%03x -> %04X -> ",pc,opcode);
+    fprintf(stderr,"pc 0x%03x -> %04X -> ",pc,opcode);
     //check first nib
     switch (opcode & 0xF000){
         case 0x0000:
@@ -139,25 +145,25 @@ void one_cycle(void){
             pc=nnn;
             break;
         case 0x2000:
-            fprintf(stderr, "%-10s %s\n", "NIY", "NOT IMPLEMENTED YET");
+            fprintf(stderr, "%-10s %s\n", "NIY", "2000 NOT IMPLEMENTED YET");
             pc+=2;
             break;
         case 0x3000:
-            fprintf(stderr, "%-10s %s%x %s%x\n", "SKIE", "Skip next instruction if V",x,"== 0x",nn);
+            fprintf(stderr, "%-10s %s%x %s%x %s\n", "SKIE", "Skip next instruction if V",x,"== 0x",nn,V[x]==nn?"TRUE":"FALSE");
             if(V[x]==nn){
                 pc+=2;
             }
             pc+=2;
             break;
         case 0x4000:
-            fprintf(stderr, "%-10s %s%x %s%x\n", "SKINE", "Skip next instruction if V",x,"!= 0x",nn);
+            fprintf(stderr, "%-10s %s%x %s%x %s\n", "SKINE", "Skip next instruction if V",x,"!= 0x",nn,V[x]!=nn?"TRUE":"FALSE");
             if(V[x]!=nn){
                 pc+=2;
             }
             pc+=2;
             break;
         case 0x5000:
-            fprintf(stderr, "%-10s %s%x %s%x\n", "SKIVE", "Skip next instruction if V",x,"== V",y);
+            fprintf(stderr, "%-10s %s%x %s%x %s\n", "SKIVE", "Skip next instruction if V",x,"== V",y,V[x]==V[y]?"TRUE":"FALSE");
             if(V[x]==V[y]){
                 pc+=2;
             }
@@ -215,47 +221,72 @@ void one_cycle(void){
                     fprintf(stderr, "%-10s %s%x %s\n", "SHR", "VF = least sig then V",x,"is shifted by 1 to the right");
                     pc+=2;
                     break;
+                //TODO the rest
+                case 0x7:
+                    //...
+                    pc+=2;
+                    break;
+                case 0xE:
+                    //...
+                    pc+=2;
+                    break;
+                default:
+                    fprintf(stderr, "Error, %X does not exist\n", opcode);
+                    pc+=2;
+                    break;
             }
         break;
         case 0x9000:
-            fprintf(stderr, "%-10s %s%x %s\n", "CMP", "Skip next instruction code if Vx!=Vy");
+            fprintf(stderr, "%-10s %s%x %s%x %s\n", "SKIVNE", "Skip next instruction if V",x,"!= V",y,V[x]!=V[y]?"TRUE":"FALSE");
             if(V[x]!=V[y]){
                 pc+=2;
             }
             pc+=2;
             break;
         case 0xA000:
-            fprintf(stderr, "%-10s %s%x %s\n", "SETI", "Set I to NNN");
+            fprintf(stderr, "%-10s %s%x\n", "SETI", "Set I to ", nnn);
             I=nnn;
             pc+=2;
             break;
         case 0xB000:
-            fprintf(stderr, "%-10s %s%x %s\n", "JMP+V0", "Jump to address NNN + V0");
+            fprintf(stderr, "%-10s %s%x %s\n", "JMP+V0", "Jump to address ",nnn," + V0");
             pc=V[0]+nnn;
             break;
         case 0xC000:
-            fprintf(stderr, "%-10s %s%x %s\n", "VERAND", "Vx is equal to random number & nn");
+            fprintf(stderr, "%-10s %s%x %s%x\n", "VERAND", "V",x,"is equal to random number & ",nn);
             V[x] = (rand() % 256) & nn;
-            pc+=2
+            pc+=2;
             break;
         case 0xD000:
-            // NOT DONE YET TO DO
-            fprintf(stderr, "%-10s %s%x %s\n", "DRW", "Draw to the screen at coordinates Vx and Vy");
+            // NOT DONE YET TODO
+            fprintf(stderr, "%-10s %s%x%s%x\n", "DRW", "Draw to the screen at coordinates V",x," and V",y);
+            pc+=2;
             break;
         case 0xE000:
             switch(opcode & 0x00ff){
-                case 0x0000:
+                case 0x009e:
+                    break;
+                case 0x00a1:
+                    break;
+                default:
+                    printf("%-10s %s\n", "UNK", "Unknown opcode");
+                    pc+=2;
                     break;
             }
-        break;
+            break;
         case 0xF000:
             switch(opcode & 0x00ff){
-                case 0x0000:
+                case 0x0007:
+                    break;
+                default:
+                    printf("%X Does not exit\n",opcode);
+                    pc+=2;
                     break;
             }
-        break;
+            break;
         default:
             printf("%-10s %s\n", "UNK", "Unknown opcode");
+            pc+=2;
             break;
 
     }

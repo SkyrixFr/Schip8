@@ -1,6 +1,7 @@
 #include "inout.h"
 #include "SDL2/SDL.h"
-#include <stdint.h>
+/*#include <stdint.h>
+#include <stdio.h>*/
 
 #define SCREEN_WIDTH 512
 #define SCREEN_HEIGHT 256
@@ -19,11 +20,29 @@ void init_display(void){
 
 void draw(uint8_t* display){
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-	//to be done
+	//TODO
 }
 
 
 void stop_display(void) {
     SDL_DestroyWindow(screen);
     SDL_Quit();
+}
+
+int findFileSize(char filename[]) {
+    FILE *chkExist = fopen(filename, "r");
+    if (chkExist == NULL) {
+        printf("File Not Found!\n");
+        return -1;
+    }
+
+    fseek(chkExist, 0L, SEEK_END);
+
+    // calculating the size of the file
+    long int res = ftell(chkExist);
+
+    // closing the file
+    fclose(chkExist);
+
+    return res;
 }
