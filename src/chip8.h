@@ -4,11 +4,21 @@
 #include <stdint.h>
 #define END_OF_MEMORY 0xfff
 
+/* FROM EMULATOR101.COM
+ * Display Buffer starts at memory 0xF00
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ */
+
 extern uint8_t memory[END_OF_MEMORY+1]; // memory of size 0xfff + 1
 extern uint8_t V[16];					// 16 General purpose register V0 -> Vf
 extern uint8_t delayTimer;				// dT -> wikipedia (not done yet)
 extern uint8_t soundTimer;				// sT -> wikipedia (not done yet)
-extern uint8_t drawflag;				// draw flag, saw this in another code, dont know if i'm going to use it, but great idea
+extern uint8_t drawflag;				// draw flag, saw this in another code, NB: yeah i used it
 extern uint8_t screen[64 * 32];			// screen of 64 x 32 pixels
 extern uint8_t sp; 						// stack-pointer
 extern uint16_t pc;						// program counter

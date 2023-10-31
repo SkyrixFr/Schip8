@@ -5,6 +5,9 @@
 #include "chip8.h"
 #include "inout.h"
 
+#define TARGET_FPS 60
+#define MS_PER_FRAME (1000 / TARGET_FPS)
+
 int main(int argc, char* argv[])
 {
     /* Verifications*/
@@ -13,7 +16,9 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    init_display();
+    if (init_display()){
+        return 1;
+    }
 
     chip8_init();
     char* filename = argv[1];
@@ -24,7 +29,9 @@ int main(int argc, char* argv[])
     }
 
     while(pc<0xfff){
-    one_cycle();
+        SDL_Delay(MS_PER_FRAME);
+        one_cycle();
+        draw(screen);
     }
 
     stop_display();

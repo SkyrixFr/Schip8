@@ -3,29 +3,50 @@
 /*#include <stdint.h>
 #include <stdio.h>*/
 
-#define SCREEN_WIDTH 512
-#define SCREEN_HEIGHT 256
+#define SCREEN_WIDTH 1024
+#define SCREEN_HEIGHT 512
 
-SDL_Window* screen;
+SDL_Window* window;
 SDL_Renderer* renderer;
 
-void init_display(void){
+int init_display(void){
 	SDL_Init(SDL_INIT_VIDEO);
 
-	screen = SDL_CreateWindow("CHIP-8", SDL_WINDOWPOS_CENTERED,
+	if(SDL_Init(SDL_INIT_VIDEO) < 0) {
+    	printf("Erreur d'initialisation de la SDL : %s",SDL_GetError());
+    	return 1;
+	}
+
+	window = SDL_CreateWindow("SChip8 Made by Skyrix_", SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
 
-	renderer = SDL_CreateRenderer(screen, -1, SDL_RENDERER_ACCELERATED);
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	return 0;
 }
 
-void draw(uint8_t* display){
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-	//TODO
+void draw(uint8_t* screen){
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Set the background color (black)
+    SDL_RenderClear(renderer);
+
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Set the pixel color (white)
+
+    for (int y = 0; y < 32; y++) {
+        for (int x = 0; x < 64; x++) {
+            if (screen[y * 64 + x] == 1) {
+                // Draw an 8x8 pixel square at (x * 8, y * 8)
+                SDL_Rect pixelRect = { x * 8, y * 8, 8, 8 };
+                SDL_RenderFillRect(renderer, &pixelRect);
+            }
+        }
+    }
+
+    SDL_RenderPresent(renderer); // Update the screen
 }
 
 
 void stop_display(void) {
-    SDL_DestroyWindow(screen);
+	SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
     SDL_Quit();
 }
 

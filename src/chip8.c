@@ -1,10 +1,11 @@
-#include "chip8.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
+#include "chip8.h"
+#include "inout.h"
 
-int8_t fontset[80] = {
+uint8_t fontset[80] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
     0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -30,7 +31,7 @@ uint8_t V[16] = {0};
 uint8_t delayTimer = 0;
 uint8_t soundTimer = 0;
 
-uint8_t display[64 * 32] = {0};
+uint8_t screen[64 * 32] = {0};
 
 // Pseudo register (dont know what it is yet)
 uint8_t sp = 0;
@@ -52,7 +53,7 @@ uint16_t keyboard[16] = {0};
 void chip8_init(void){
 
     puts("Loading fontset in CMemory");
-    for(int i=0; i<=80;++i){
+    for(int i=0; i<80;++i){
         memory[i] = fontset[i];
     }
     puts("Done!");
@@ -106,6 +107,15 @@ int load_rom(char *filename){
     return 0;
 }
 
+void print_display(uint8_t* screen) {
+    for (int y = 0; y < 32; y++) {
+        for (int x = 0; x < 64; x++) {
+            fprintf(stderr,"%d ", screen[y * 64 + x]);
+        }
+        fprintf(stderr,"\n"); // Move to the next row
+    }
+}
+
 void one_cycle(void){
     opcode = memory[pc] << 8 | memory[pc+1];
 
@@ -122,7 +132,7 @@ void one_cycle(void){
             switch(nn){
                 case 0xE0:
                     fprintf(stderr,"%-10s %s\n", "CLS", "Clears screen");
-                    for(int i=0;i<64*32;++i){display[i]=0;}
+                    for(int i=0;i<64*32;++i){screen[i]=0;}
                     pc+=2;
                     break;
 
@@ -258,9 +268,31 @@ void one_cycle(void){
             pc+=2;
             break;
         case 0xD000:
-            // NOT DONE YET TODO
-            fprintf(stderr, "%-10s %s%x%s%x\n", "DRW", "Draw to the screen at coordinates V",x," and V",y);
-            pc+=2;
+            fprintf(stderr, "%-10s %s%x%s%x %s\n", "DRW", "Draw to the screen at coordinates V", x, " and V",y ,"It will");
+            fprintf(stderr, "I -> %x\n", I);
+            fprintf(stderr, "x -> %x / V%x -> %x\n", x, x, V[x]);
+            fprintf(stderr, "y -> %x / V%x -> %x\n", y, y, V[y]);
+
+            uint16_t height = opcode & 0x000F; // x and y already defined
+
+            V[0xF] = 0; // Initialize collision flag to 0
+            for (int row = 0; row < height; row++) {
+                uint8_t spriteByte = memory[I + row];
+                for (int col = 0; col < 8; col++) {
+                    if ((spriteByte & (0x80 >> col)) != 0) {
+                        // Check if the pixel is set
+                        int index = (V[y] + row) * 64 + (V[x] + col);
+                        if (index < 64 * 32) {
+                            if (screen[index] == 1) {
+                                V[0xF] = 1;
+                            }
+                            // XOR the pixel to toggle its state
+                            screen[index] ^= 1;
+                        }
+                    }
+                }
+            }
+            pc += 2;
             break;
         case 0xE000:
             switch(opcode & 0x00ff){
