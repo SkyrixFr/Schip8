@@ -8,6 +8,8 @@
 #define TARGET_FPS 60
 #define MS_PER_FRAME (1000 / TARGET_FPS)
 
+uint8_t quit = 0;
+
 int main(int argc, char* argv[])
 {
     /* Verifications*/
@@ -28,8 +30,9 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    while(pc<0xfff){
+    while(pc<0xfff && !quit){
         SDL_Delay(MS_PER_FRAME);
+        handle_event();
         one_cycle();
         draw(screen);
     }

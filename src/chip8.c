@@ -122,6 +122,7 @@ void one_cycle(void){
     // configurations : YxyZ, Ynnn, Yxnn, Yx
     uint16_t x = (opcode & 0x0f00) >> 8;
     uint16_t y = (opcode & 0x00f0) >> 4;
+    uint16_t n = opcode & 0x000F;
     uint16_t nn = (opcode & 0x00ff);
     uint16_t nnn = (opcode & 0x0fff);
 
@@ -248,7 +249,7 @@ void one_cycle(void){
         break;
         case 0x9000:
             fprintf(stderr, "%-10s %s%x %s%x %s\n", "SKIVNE", "Skip next instruction if V",x,"!= V",y,V[x]!=V[y]?"TRUE":"FALSE");
-            if(V[x]!=V[y]){
+            if(V[x]!=V[y]) {
                 pc+=2;
             }
             pc+=2;
@@ -268,15 +269,15 @@ void one_cycle(void){
             pc+=2;
             break;
         case 0xD000:
-            fprintf(stderr, "%-10s %s%x%s%x %s\n", "DRW", "Draw to the screen at coordinates V", x, " and V",y ,"It will");
+            fprintf(stderr, "%-10s %s%x%s%x\n", "DRW", "Draw to the screen at coordinates V", x, " and V",y);
+            /* For debug purposes
             fprintf(stderr, "I -> %x\n", I);
             fprintf(stderr, "x -> %x / V%x -> %x\n", x, x, V[x]);
             fprintf(stderr, "y -> %x / V%x -> %x\n", y, y, V[y]);
-
-            uint16_t height = opcode & 0x000F; // x and y already defined
+            */
 
             V[0xF] = 0; // Initialize collision flag to 0
-            for (int row = 0; row < height; row++) {
+            for (int row = 0; row < n; row++) {
                 uint8_t spriteByte = memory[I + row];
                 for (int col = 0; col < 8; col++) {
                     if ((spriteByte & (0x80 >> col)) != 0) {
@@ -297,8 +298,10 @@ void one_cycle(void){
         case 0xE000:
             switch(opcode & 0x00ff){
                 case 0x009e:
+                    pc+=2;
                     break;
                 case 0x00a1:
+                    pc+=2;
                     break;
                 default:
                     printf("%-10s %s\n", "UNK", "Unknown opcode");
@@ -311,7 +314,7 @@ void one_cycle(void){
                 case 0x0007:
                     break;
                 default:
-                    printf("%X Does not exit\n",opcode);
+                    printf("%-10s %s\n", "UNK", "Unknown opcode");
                     pc+=2;
                     break;
             }

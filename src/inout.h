@@ -11,7 +11,7 @@ int findFileSize(char filename[]);
 extern FILE *chkExist;
 extern long int res;
 
-extern uint16_t x;
-extern uint16_t y;
+void handle_event(void);
+extern uint8_t quit;
 
 #endif
