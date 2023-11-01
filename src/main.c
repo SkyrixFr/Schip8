@@ -5,10 +5,8 @@
 #include "chip8.h"
 #include "inout.h"
 
-#define TARGET_FPS 60
-#define MS_PER_FRAME (1000 / TARGET_FPS)
-
-uint8_t quit = 0;
+#define TARGET_FPS 10
+#define MS_PER_FRAME (300000/TARGET_FPS)
 
 int main(int argc, char* argv[])
 {
@@ -30,8 +28,8 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    while(pc<0xfff && !quit){
-        SDL_Delay(MS_PER_FRAME);
+    while(pc<0xfff && !quit) {
+        wait(MS_PER_FRAME);
         handle_event();
         one_cycle();
         draw(screen);

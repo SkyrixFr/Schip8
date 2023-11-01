@@ -14,4 +14,6 @@ extern long int res;
 void handle_event(void);
 extern uint8_t quit;
 
+void wait(uint32_t MS_PER_FRAME);
+
 #endif

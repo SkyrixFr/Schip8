@@ -312,6 +312,7 @@ void one_cycle(void){
         case 0xF000:
             switch(opcode & 0x00ff){
                 case 0x0007:
+                    pc+=2;
                     break;
                 default:
                     printf("%-10s %s\n", "UNK", "Unknown opcode");

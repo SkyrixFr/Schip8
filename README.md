@@ -8,7 +8,7 @@ The makefile is just a boilerplate (couldn't be bothered to re-write one)
 
 Compiled fine with:
 - Windows 11 x64, Ryzen 5 3600, 16Gb of RAM
-- SDL 2.26.4
+- SDL 2.28.4 (previously worked with 2.26.4)
 - GCC 13.2.0 with MSYS2
 - Make 4.4.1
 
@@ -26,6 +26,7 @@ To use the emulator/disassembler : prgName.exe rom.ch8
 - [ ] Take care of Exxx and Fxxx
 - [ ] Enable subroutines (links to the stack)
 - [ ] A better handling of events (it's all messy)
+- [ ] Maybe a fps counter (?)
 
 ---
 
