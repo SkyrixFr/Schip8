@@ -74,7 +74,6 @@ int load_rom(char *filename){
     FILE* file = fopen(filename, "rb");
     if(file == NULL){
         fprintf(stderr, "Error opening the file\n");
-        fclose(file);
         return 1;
     }
 
@@ -90,9 +89,16 @@ int load_rom(char *filename){
     }
 
     int8_t *buffer=malloc(romsize+1);
+    if(buffer == NULL) {
+        fprintf(stderr, "Memory allocation error\n");
+        fclose(file);
+        return 1;
+    }
+    
     int bufferSize = fread(buffer, sizeof(char), romsize, file);
     if(bufferSize!=romsize){
         fprintf(stderr, "Error of rom buffer\n");
+        free(buffer);
         fclose(file);
         return 1;
     }

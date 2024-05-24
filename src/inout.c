@@ -24,7 +24,7 @@ int init_display(void){
 		return 1;
 	}
 
-	debug_window = SDL_CreateWindow("DEBUG", 1472, SDL_WINDOWPOS_CENTERED, 200, 512, 0);
+	debug_window = SDL_CreateWindow("DEBUG", 500, SDL_WINDOWPOS_CENTERED, 200, 512, 0);
 	debug_renderer = SDL_CreateRenderer(debug_window, -1, SDL_RENDERER_ACCELERATED);
 
 	window = SDL_CreateWindow("SChip8 Made by Skyrix_", SDL_WINDOWPOS_CENTERED,
